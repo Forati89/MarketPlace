@@ -1,0 +1,13 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/spfx-build/package-solution.schema.json",
+  "solution": {
+    "name": "blocket-app-client-side-solution",
+    "id": "f1870d08-13c4-40d5-9a6d-47b6b5522fb8",
+    "version": "1.0.0.0",
+    "includeClientSideAssets": true,
+    "isDomainIsolated": false
+  },
+  "paths": {
+    "zippedPackage": "solution/blocket-app.sppkg"
+  }
+}
