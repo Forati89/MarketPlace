@@ -3,8 +3,11 @@ import IBildStrings from './IBildStrings';
 export interface IListItem{
     Title: string;
     ID: string;
-    AuthorId: string;
+    Beskrivning: string;
+    Pris: string;
+    Datum: Date;
+    UsersId: any;
+    Kategori: string;
+    Bild: string[];
     BildUrl: string;
-    FieldUrlValue: any;
-    
 }

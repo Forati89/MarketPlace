@@ -1,4 +1,4 @@
 export default interface IBildStrings {
-    Description: string;
+    Bild: string;
     Url: string;
 }

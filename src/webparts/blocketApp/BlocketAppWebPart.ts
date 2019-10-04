@@ -10,9 +10,10 @@ import {
 import * as strings from 'BlocketAppWebPartStrings';
 import BlocketApp from './components/BlocketApp';
 import { IBlocketAppProps } from './components/IBlocketAppProps';
-import { sp, spODataEntityArray, Item } from "@pnp/sp";
+import { sp } from "@pnp/sp";
 import { IListItem } from './IListItem';
 import { IUserItem } from './IUserItem';
+import { string } from 'prop-types';
 
 export interface IBlocketAppWebPartProps {
   description: string;
@@ -37,25 +38,35 @@ export default class BlocketAppWebPart extends BaseClientSideWebPart<IBlocketApp
       BlocketApp,
       {
         loadListItems: this.loadListItems,
-        loadUserItems: this.loadUserItems
-
+        loadUserItems: this.loadUserItems,
+        context: this.context,
       }
     );
 
     ReactDom.render(element, this.domElement);
   }
 
-  private async loadListItems(): Promise<IListItem[]>{
-    const result: IListItem[] = await sp.web.lists.getByTitle("MarketPlaceList").items.getAll();
-    console.log('result', result);
+  private async loadListItems(sortColumn: string, asc: boolean, searchvalue: string, search?: boolean): Promise<IListItem[]>{
+    if(search === true){
+    const result: IListItem[] = await sp.web.lists.getByTitle("MarketPlaceList").items
+    .filter(`substringof('${encodeURIComponent(searchvalue)}',Title) or substringof('${encodeURIComponent(searchvalue)}',Kategori)`)
+    .orderBy(sortColumn, asc).get();
     return (result);
+    }
+    else
+    {
+      const result: IListItem[] = await sp.web.lists.getByTitle("MarketPlaceList").items
+      .orderBy(sortColumn, asc).get();
+      return (result);
+    }
   }
+
+
 
   private async loadUserItems(): Promise<IUserItem[]>{
     const result: IUserItem[] = await sp.web.lists.getByTitle("MarketPlaceList").items.select('Author/Id,Author/Title,Author/Name,Author/EMail')
     .expand('Author')
     .getAll().then((item: any[])=>{
-      console.log('user', item);
       return(item);
 
     });
