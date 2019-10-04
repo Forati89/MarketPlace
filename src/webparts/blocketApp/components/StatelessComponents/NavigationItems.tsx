@@ -1,6 +1,6 @@
 import * as React from 'react';
 import NavigationItem from './NavigationItem';
-import styles from '../NavigationItems.module.scss';
+import styles from './NavigationItems.module.scss';
 
 
 const navigationItems = () => (

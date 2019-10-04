@@ -18,7 +18,7 @@ export interface ITestProps {
 
 export interface ITestState {
     values: {
-        Id: string;
+        Id: number;
         Title: string;
         Pris: any;
         Beskrivning: string;
@@ -37,7 +37,7 @@ export default class Test extends React.Component<ITestProps, ITestState> {
         super(props);
         this.state = {
             values: {
-                Id: '',
+                Id: 1,
                 Pris: 0,
                 Title: '',
                 UsersId: 0,
@@ -55,12 +55,26 @@ export default class Test extends React.Component<ITestProps, ITestState> {
             { key: '6', text: 'Övrigt' },
           ];
         
-    }
+    }  
+    
+    // public componentWillReceiveProps(): void {
+    //   this.setState( prevState => ({
+    //       values:{
+    //     ...prevState.values,
+    //     Pris: this.props.items[0].Pris,
+    //     Title: this.props.items[0].Title,
+    //     UsersId: this.props.items[0].UsersId,
+    //     Beskrivning: this.props.items[0].Beskrivning,
+    //     Kategori: this.props.items[0].Kategori,
+    //     BildUrl: this.props.items[0].BildUrl
+    // }  
+    // }));
+  
+    // }
     
 
     public render():  React.ReactElement<ITestProps> {
 
-        
         const dialog = this.props.items.map(result => {
             // variable for kategori to be comapred and return the number of key value //
             let cat = this.choosenCat(result.Kategori);
@@ -77,14 +91,14 @@ export default class Test extends React.Component<ITestProps, ITestState> {
               isBlocking: false,
               styles: { main: { minWidth: 900 } }
             }}>
-              <TextField label="Mata in Rubrik för din annons" value={result.Title} className="Title" onChange={this._onChangeTitle}/>
-              <TextField label="Mata in Beskrivning" value={result.Beskrivning} className="Description" onChange={this._onChangeDesc}/>
-              <TextField label="Mata in Pris för Objektet" value={result.Pris}  className="Price" type="number" prefix="kr" onChange={this._onChangePrice}/>
+              <TextField label="Mata in Rubrik för din annons" defaultValue={result.Title} className="Title" onChange={this._onChangeTitle}/>
+              <TextField label="Mata in Beskrivning" defaultValue={result.Beskrivning} className="Description" onChange={this._onChangeDesc}/>
+              <TextField label="Mata in Pris för Objektet" defaultValue={result.Pris}  className="Price" type="number" prefix="kr" onChange={this._onChangePrice}/>
               <Dropdown label="Välj Kategori" options={this._options} defaultSelectedKey={'1'} className="Category" onChanged={this._onChangeCategory}/>
               {
                 
               }
-              <TextField label="Länk till objektets bild" value={result.BildUrl} className="BildUrl" onChange={this._onChangeBild}/>
+              <TextField label="Länk till objektets bild" defaultValue={result.BildUrl} className="BildUrl" onChange={this._onChangeBild}/>
               <PeoplePicker
                     context={this.props.context}
                     titleText="People Picker"
@@ -116,10 +130,26 @@ export default class Test extends React.Component<ITestProps, ITestState> {
 
     
     private choosenCat = (cat: string) => {
-        let s = this._options.filter(value => value.text === cat)
-        console.log('choosenCat', s['key'] + " " + this.props.items[0].Kategori)
+        let s = this._options.filter(value => value.text === 'Alla Kategorier')
         
 
+        console.log('choosenCat', s.filter(value=>[value.key[0]]))
+        
+
+    }
+
+    private updateState = (): void => {
+            this.setState( prevState => ({
+            values:{
+          ...prevState.values,
+          Pris: this.props.items[0].Pris,
+          Title: this.props.items[0].Title,
+          UsersId: this.props.items[0].UsersId,
+          Beskrivning: this.props.items[0].Beskrivning,
+          Kategori: this.props.items[0].Kategori,
+          BildUrl: this.props.items[0].BildUrl
+      }  
+      }));
     }
 
     private _getPeoplePickerItems = (items: any) => {
@@ -156,7 +186,7 @@ export default class Test extends React.Component<ITestProps, ITestState> {
 
 
     private _onChangeTitle = (ev: React.FormEvent<HTMLInputElement>, newValue?: any) => {
-        
+        this.updateState();
         this.setState( prevState => ({
            values:{
           ...prevState.values,
@@ -204,7 +234,9 @@ export default class Test extends React.Component<ITestProps, ITestState> {
       }
 
     private updateValues = (): void => {
-        sp.web.lists.getByTitle('MarketPlaceList').items.add({
+        let list = sp.web.lists.getByTitle('MarketPlaceList');
+
+        list.items.getById(this.props.items[0].Id).update({
           Title: this.state.values.Title,
           Beskrivning: this.state.values.Beskrivning,
           Pris: this.state.values.Pris,

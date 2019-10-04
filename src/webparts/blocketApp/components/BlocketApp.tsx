@@ -64,7 +64,6 @@ export default class BlocketApp extends React.Component<IBlocketAppProps, IBlock
 
   public componentDidMount(): void {
     this._loadListItems();
-    
 
   }
   public render(): React.ReactElement<IBlocketAppProps> {
@@ -89,7 +88,7 @@ export default class BlocketApp extends React.Component<IBlocketAppProps, IBlock
                   <h3>{result.Pris +' kr'}</h3>
                   <p>{result.Beskrivning.slice(0,10)+"..."}</p>
                   <h3>{"Annons Skapad: " + stringDate}</h3>
-                  <DefaultButton onClick={e=> this.setId(result.ID)} text="Visa"/>
+                  <DefaultButton onClick={e=> this.setId(result.Id)} text="Visa"/>
                 </DocumentCardDetails>
               </DocumentCard>
        </div>);
@@ -115,7 +114,7 @@ export default class BlocketApp extends React.Component<IBlocketAppProps, IBlock
                  context={this.props.context} 
                  items={this.state.newItems} 
                  openDialog={this.state.openDialog}
-                 closeDialog={this.closeDialog}            
+                 closeDialog={this.closeDialog}
                    />
                 <br/>
                 <div>
@@ -141,12 +140,12 @@ export default class BlocketApp extends React.Component<IBlocketAppProps, IBlock
   }
 
   
-  private setId = (Id: string) => {
+  private setId = (Id: number) => {
     this.setState({openDialog: false});
     this.loadOpenDialog(Id);
   }
 
-  private loadOpenDialog(Id: string): void{
+  private loadOpenDialog(Id: number): void{
 
     sp.web.lists.getByTitle("MarketPlaceList").items
     .filter(`Id eq ${Id} `).get().then(result =>

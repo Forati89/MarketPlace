@@ -2,7 +2,7 @@ import * as React from 'react';
 
 import NavigationItems from './NavigationItems';
 import Logo from './Logo';
-import styles from '../MenuBar.module.scss';
+import styles from './MenuBar.module.scss';
 
 const menuBar = () => {
     return (

@@ -1,6 +1,6 @@
 import * as React from 'react';
 
-import styles from '../NavigationItem.module.scss';
+import styles from './NavigationItem.module.scss';
 
 export interface NavigationItemProps {
     url: string;

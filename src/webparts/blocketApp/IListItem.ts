@@ -2,7 +2,7 @@ import IBildStrings from './IBildStrings';
 
 export interface IListItem{
     Title: string;
-    ID: string;
+    Id: number;
     Beskrivning: string;
     Pris: string;
     Datum: Date;
