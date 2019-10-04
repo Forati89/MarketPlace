@@ -7,6 +7,7 @@ import { PeoplePicker, PrincipalType } from "@pnp/spfx-controls-react/lib/People
 import { WebPartContext } from '@microsoft/sp-webpart-base';
 import { sp} from "@pnp/sp";
 import { IBlocketAppProps } from '../IBlocketAppProps';
+import { string } from 'prop-types';
 
 export interface ITestProps {
     items: IListItem[];
@@ -21,7 +22,6 @@ export interface ITestState {
         Title: string;
         Pris: any;
         Beskrivning: string;
-        Datum: Date;
         Kategori: string;
         UsersId: number;
         BildUrl: string;
@@ -39,11 +39,10 @@ export default class Test extends React.Component<ITestProps, ITestState> {
             values: {
                 Id: '',
                 Pris: 0,
-                Title: 'Emptysss',
-                UsersId: 10,
-                Beskrivning: 'Emptysss',
-                Datum: new Date(),
-                Kategori: 'Emptyss',
+                Title: '',
+                UsersId: 0,
+                Beskrivning: '',
+                Kategori: '',
                 BildUrl: ''
             }
         };
@@ -53,7 +52,7 @@ export default class Test extends React.Component<ITestProps, ITestState> {
             { key: '3', text: 'Elektronik' },
             { key: '4', text: 'Hushåll & Vitvaror' },
             { key: '5', text: 'Hobby' },
-            { key: '2', text: 'Övrigt' },
+            { key: '6', text: 'Övrigt' },
           ];
         
     }
@@ -63,6 +62,8 @@ export default class Test extends React.Component<ITestProps, ITestState> {
 
         
         const dialog = this.props.items.map(result => {
+            // variable for kategori to be comapred and return the number of key value //
+            let cat = this.choosenCat(result.Kategori);
             return(
             <Dialog
             hidden={this.props.openDialog}
@@ -79,7 +80,7 @@ export default class Test extends React.Component<ITestProps, ITestState> {
               <TextField label="Mata in Rubrik för din annons" value={result.Title} className="Title" onChange={this._onChangeTitle}/>
               <TextField label="Mata in Beskrivning" value={result.Beskrivning} className="Description" onChange={this._onChangeDesc}/>
               <TextField label="Mata in Pris för Objektet" value={result.Pris}  className="Price" type="number" prefix="kr" onChange={this._onChangePrice}/>
-              <Dropdown label="Välj Kategori" options={this._options} defaultSelectedKey={} className="Category" onChanged={this._onChangeCategory}/>
+              <Dropdown label="Välj Kategori" options={this._options} defaultSelectedKey={'1'} className="Category" onChanged={this._onChangeCategory}/>
               {
                 
               }
@@ -114,14 +115,10 @@ export default class Test extends React.Component<ITestProps, ITestState> {
     }
 
     
-    private choosenCat = (cat: string): number => {
-        let s = this._options.map(res => {
-                if(cat === res.text)
-                {
-                    return res.key.toString
-                }
-            })
-            return s
+    private choosenCat = (cat: string) => {
+        let s = this._options.filter(value => value.text === cat)
+        console.log('choosenCat', s['key'] + " " + this.props.items[0].Kategori)
+        
 
     }
 
@@ -156,15 +153,6 @@ export default class Test extends React.Component<ITestProps, ITestState> {
     }));
 
     }
-
-
-    // private _showDialog = (): void => {
-    //     this.setState({ hideDialog: false });
-    //   }
-      
-    // private _closeDialog = (): void => {
-    //     this.setState({ hideDialog: true });
-    //   }
 
 
     private _onChangeTitle = (ev: React.FormEvent<HTMLInputElement>, newValue?: any) => {
@@ -221,7 +209,6 @@ export default class Test extends React.Component<ITestProps, ITestState> {
           Beskrivning: this.state.values.Beskrivning,
           Pris: this.state.values.Pris,
           Kategori: this.state.values.Kategori,
-          Datum: this.state.values.Datum,
           BildUrl: this.state.values.BildUrl,  
           UsersId: {
             results: [this.state.values.UsersId] 

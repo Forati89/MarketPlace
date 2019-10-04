@@ -50,7 +50,7 @@ export default class NewAd extends React.Component<IBlocketAppProps, INewAdState
             { key: '3', text: 'Elektronik' },
             { key: '4', text: 'Hushåll & Vitvaror' },
             { key: '5', text: 'Hobby' },
-            { key: '2', text: 'Övrigt' },
+            { key: '6', text: 'Övrigt' },
           ];
           
     }
