@@ -6,8 +6,9 @@ export interface IListItem{
     Beskrivning: string;
     Pris: string;
     Datum: Date;
-    UsersId: any;
+    UsersId: number;
     Kategori: string;
     Bild: string[];
     BildUrl: string;
+    AuthorId: any;
 }

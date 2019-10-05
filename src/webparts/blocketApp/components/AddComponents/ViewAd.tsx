@@ -1,90 +1,103 @@
 import * as React from 'react';
-import { Dialog, DialogType, DialogFooter } from 'office-ui-fabric-react/lib/Dialog';
-import { IFrameDialog } from "@pnp/spfx-controls-react/lib/IFrameDialog";
-import { IButtonProps, DefaultButton, PrimaryButton } from 'office-ui-fabric-react/lib/Button';
-import { TextField, IDropdownOption, Dropdown, values} from 'office-ui-fabric-react/lib';
-import { PeoplePicker, PrincipalType } from "@pnp/spfx-controls-react/lib/PeoplePicker";
-import { IBlocketAppProps } from '../IBlocketAppProps';
-import { autobind } from 'office-ui-fabric-react';
-import { sp} from "@pnp/sp";
-import { getGUID } from "@pnp/common";
-import { peoplePicker } from 'office-ui-fabric-react/lib/components/FloatingPicker/PeoplePicker/PeoplePicker.scss';
 import { IListItem } from '../../IListItem';
+import { Dialog, DialogType, DialogFooter } from 'office-ui-fabric-react/lib/Dialog';
+import { TextField, IDropdownOption, Dropdown} from 'office-ui-fabric-react/lib';
+import { DefaultButton, PrimaryButton } from 'office-ui-fabric-react/lib/Button';
+import { PeoplePicker, PrincipalType } from "@pnp/spfx-controls-react/lib/PeoplePicker";
+import { WebPartContext } from '@microsoft/sp-webpart-base';
+import { sp} from "@pnp/sp";
+
+export interface IViewAdProps {
+    items: IListItem[];
+    context: WebPartContext;
+    openDialog: boolean;
+    closeDialog: () => void;
+}
 
 export interface IViewAdState {
-    hideDialog: boolean;
-    items: IListItem[];
     values: {
-        Id: string;
+        Id: number;
         Title: string;
         Pris: any;
         Beskrivning: string;
-        Datum: Date;
         Kategori: string;
         UsersId: number;
         BildUrl: string;
     };
 }
 
+export default class ViewAd extends React.Component<IViewAdProps, IViewAdState> {
 
-  
-export default class ViewAd extends React.Component<IBlocketAppProps, IViewAdState> {
     private _options: IDropdownOption[];
 
-    constructor(props: IBlocketAppProps, state: IViewAdState)
+    constructor(props: IViewAdProps, state: IViewAdState)
     {
         super(props);
         this.state = {
-            hideDialog: true,
-            items: [],
             values: {
-                Id: '',
+                Id: 1,
                 Pris: 0,
-                Title: 'Emptysss',
+                Title: '',
                 UsersId: 10,
-                Beskrivning: 'Emptysss',
-                Datum: new Date(),
-                Kategori: 'Emptyss',
-                BildUrl: ''
+                Beskrivning: '',
+                Kategori: '',
+                BildUrl: '',
             }
         };
- 
         this._options = [
-            { key: '1', text: 'Alla Kategorier' },
+            { key: '1', text: 'Alla' },
             { key: '2', text: 'Fordon' },
             { key: '3', text: 'Elektronik' },
             { key: '4', text: 'Hushåll & Vitvaror' },
             { key: '5', text: 'Hobby' },
-            { key: '2', text: 'Övrigt' },
+            { key: '6', text: 'Övrigt' },
           ];
-          
-    }
-
+        
+    }  
+    
+    // public componentWillReceiveProps(): void {
+    //   this.setState( prevState => ({
+    //       values:{
+    //     ...prevState.values,
+    //     Pris: this.props.items[0].Pris,
+    //     Title: this.props.items[0].Title,
+    //     UsersId: this.props.items[0].UsersId,
+    //     Beskrivning: this.props.items[0].Beskrivning,
+    //     Kategori: this.props.items[0].Kategori,
+    //     BildUrl: this.props.items[0].BildUrl
+    // }  
+    // }));
   
-    public render():  React.ReactElement<IBlocketAppProps> {
+    // }
+    
 
-      return (
-        <div>
+    public render():  React.ReactElement<IViewAdProps> {
+
+        const dialog = this.props.items.map(result => {
+            // variable for kategori to be comapred and return the number of key value //
+            let cat = this.choosenCat(result.Kategori);
+            console.log([String(this.props.items[0].AuthorId)])
+            return(
             <Dialog
-            hidden={this.state.hideDialog}
-            onDismiss={this._closeDialog}
+            hidden={this.props.openDialog}
+            onDismiss={this.props.closeDialog}
             dialogContentProps={{
               type: DialogType.largeHeader,
-              title: 'Lägg till annons',
+              title: result.Title,
             //   subText: 'Dinn Annons är nu upplagd, tack för du använder MarketPlace'
             }}
             modalProps={{
               isBlocking: false,
               styles: { main: { minWidth: 900 } }
             }}>
-              <TextField label="Mata in Rubrik för din annons" value={this.state.values.Title} className="Title" onChange={this._onChangeTitle}/>
-              <TextField label="Mata in Beskrivning" value={this.state.values.Beskrivning} className="Description" onChange={this._onChangeDesc}/>
-              <TextField label="Mata in Pris för Objektet" value={this.state.values.Pris} className="Price" type="number" prefix="kr" onChange={this._onChangePrice}/>
-              <Dropdown label="Välj Kategori" defaultValue={this.state.values.Kategori} options={this._options} className="Category" onChanged={this._onChangeCategory}/>
+              <TextField label="Mata in Rubrik för din annons" defaultValue={result.Title} className="Title" onChange={this._onChangeTitle}/>
+              <TextField label="Mata in Beskrivning" defaultValue={result.Beskrivning} className="Description" onChange={this._onChangeDesc}/>
+              <TextField label="Mata in Pris för Objektet" defaultValue={result.Pris}  className="Price" type="number" prefix="kr" onChange={this._onChangePrice}/>
+              <Dropdown label="Välj Kategori" options={this._options} defaultSelectedKey={cat} className="Category" onChanged={this._onChangeCategory}/>
               {
                 
               }
-              <TextField label="Länk till objektets bild" value={this.state.values.BildUrl} className="BildUrl" onChange={this._onChangeBild}/>
+              <TextField label="Länk till objektets bild" defaultValue={result.BildUrl} className="BildUrl" onChange={this._onChangeBild}/>
               <PeoplePicker
                     context={this.props.context}
                     titleText="People Picker"
@@ -97,21 +110,54 @@ export default class ViewAd extends React.Component<IBlocketAppProps, IViewAdSta
                     selectedItems={this._getPeoplePickerItems}
                     showHiddenInUI={false}
                     principalTypes={[PrincipalType.User]}
-                    defaultSelectedUsers={['hassan Ali']}
                     resolveDelay={1000}
+                    defaultSelectedUsers={[String(this.props.items[0].AuthorId)]}
                      />
             <DialogFooter>
-              <PrimaryButton onClick={this.addValues} text="Spara" />
-              <DefaultButton onClick={this._closeDialog} text="Avbryt" />
+              <PrimaryButton onClick={this.updateValues} text="Spara" />
+              <DefaultButton onClick={this.props.closeDialog} text="Avbryt" />
             </DialogFooter>
           </Dialog>
-        </div>
-      );
+        )})
+        return (
+            <div>
+                {dialog}
+            </div>
+        )
+
+
     }
+
     
-    private async _loadOpenDialog (): Promise<void> {
-        const items: IListItem[] = await this.props.loadOpenDialog('2');
-        this.setState({items: items});
+    private choosenCat = (cat: string) => {
+
+        let catetgory = this._options.filter(value => value.text === cat)
+        let key = catetgory.map(key => { return key.key[0]})
+
+         console.log('choosenCat', key)
+        return key
+
+    }
+
+    private userToView = (): string[] => {
+      let user = [String(this.props.items[0].AuthorId)]
+      console.log('user', user)
+      return user
+    }
+
+    private updateState = (): void => {
+       this.setState( prevState => ({
+            values:{
+          ...prevState.values,
+          Pris: this.props.items[0].Pris,
+          Title: this.props.items[0].Title,
+          UsersId: this.props.items[0].AuthorId,
+          Beskrivning: this.props.items[0].Beskrivning,
+          BildUrl: this.props.items[0].BildUrl,
+          Kategori: this.props.items[0].Kategori
+      }  
+      }));
+      
     }
 
     private _getPeoplePickerItems = (items: any) => {
@@ -147,23 +193,15 @@ export default class ViewAd extends React.Component<IBlocketAppProps, IViewAdSta
     }
 
 
-    private _showDialog = (): void => {
-        this.setState({ hideDialog: false });
-      }
-      
-    private _closeDialog = (): void => {
-        this.setState({ hideDialog: true });
-      }
-
-
     private _onChangeTitle = (ev: React.FormEvent<HTMLInputElement>, newValue?: any) => {
-        
+        this.updateState();
         this.setState( prevState => ({
            values:{
           ...prevState.values,
             Title: newValue
         }  
         }));
+        console.log(this.props.items)
       }
       // Handle Description input field //
     private _onChangeDesc = (ev: React.FormEvent<HTMLInputElement>, newValue?: any) => {
@@ -204,13 +242,13 @@ export default class ViewAd extends React.Component<IBlocketAppProps, IViewAdSta
         }));
       }
 
-    private addValues = (): void => {
-        sp.web.lists.getByTitle('MarketPlaceList').items.add({
+    private updateValues = (): void => {
+        let list = sp.web.lists.getByTitle('MarketPlaceList');
+        list.items.getById(this.props.items[0].Id).update({
           Title: this.state.values.Title,
           Beskrivning: this.state.values.Beskrivning,
           Pris: this.state.values.Pris,
           Kategori: this.state.values.Kategori,
-          Datum: this.state.values.Datum,
           BildUrl: this.state.values.BildUrl,  
           UsersId: {
             results: [this.state.values.UsersId] 
@@ -219,7 +257,9 @@ export default class ViewAd extends React.Component<IBlocketAppProps, IViewAdSta
           console.log(i);
           
           });
-          this._closeDialog();
+          this.props.closeDialog();
       }
 
-  }
+
+    
+}

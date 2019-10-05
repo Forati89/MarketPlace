@@ -17,7 +17,7 @@ import { ImageFit } from 'office-ui-fabric-react/lib/Image';
 import { TextField } from 'office-ui-fabric-react/lib/TextField';
 import NavBar from './StatelessComponents/NavBar';
 import NewAd from './AddComponents/NewAd';
-import Test from './AddComponents/test';
+import ViewAd from './AddComponents/ViewAd'
 import { Checkbox} from 'office-ui-fabric-react/lib/Checkbox';
 import { sp} from "@pnp/sp";
 
@@ -34,6 +34,7 @@ export interface IBlocketAppState {
   searchvalue: string
   search: boolean;
   openDialog: boolean;
+  userEMail: any[];
 }
 
  export const cardStyles: IDocumentCardStyles = {
@@ -57,15 +58,21 @@ export default class BlocketApp extends React.Component<IBlocketAppProps, IBlock
         descDisabled: false,
         searchvalue: '',
         search: false,
-        openDialog: false
+        openDialog: true,
+        userEMail: []
     };
     
   }
 
   public componentDidMount(): void {
     this._loadListItems();
+    this.loadOpenDialog(1);
+    this.getUser();
+    console.log('getUsers',this.state.userEMail)
+
 
   }
+
   public render(): React.ReactElement<IBlocketAppProps> {
     const checkboxStyles = () => {
       return {
@@ -110,7 +117,7 @@ export default class BlocketApp extends React.Component<IBlocketAppProps, IBlock
                  loadListItems={this.props.loadListItems}
                  loadUserItems={this.props.loadUserItems}
                   />
-                 <Test
+                 <ViewAd
                  context={this.props.context} 
                  items={this.state.newItems} 
                  openDialog={this.state.openDialog}
@@ -134,6 +141,18 @@ export default class BlocketApp extends React.Component<IBlocketAppProps, IBlock
     );
   }
 
+  private getUser = () => {
+     sp.web.lists.getByTitle("MarketPlaceList").items
+    .getById(1)
+    .select("Author", "Author/EMail", "Author/ID", "Author/Title").expand("Author").get().then((items: any[]) => {
+      this.setState({userEMail: items})
+      console.log('items', items)
+      
+    });
+    
+
+  }
+
 
   private closeDialog = () => {
       this.setState({openDialog: true})
@@ -145,14 +164,16 @@ export default class BlocketApp extends React.Component<IBlocketAppProps, IBlock
     this.loadOpenDialog(Id);
   }
 
-  private loadOpenDialog(Id: number): void{
+  private loadOpenDialog = (Id: number): void => {
 
     sp.web.lists.getByTitle("MarketPlaceList").items
     .filter(`Id eq ${Id} `).get().then(result =>
       {
         this.setState({newItems: result})
-      })
-}
+    })
+    
+
+  }
 
 
   @autobind
@@ -173,6 +194,8 @@ export default class BlocketApp extends React.Component<IBlocketAppProps, IBlock
     this.setState({priceDisabled: true, dateDisabled: false, sortColumn: 'Datum'})
     else
     this.setState({priceDisabled: false, sortColumn: 'Id'})
+    console.log('blocketappUsersId', this.state.newItems[0].UsersId[0])
+
   }
 
   private _onPriceChecked = (ev: React.FormEvent<HTMLElement>, priceChecked: boolean): void => {

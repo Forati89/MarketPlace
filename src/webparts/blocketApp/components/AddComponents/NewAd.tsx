@@ -8,7 +8,6 @@ import { autobind } from 'office-ui-fabric-react';
 import { sp} from "@pnp/sp";
 import { getGUID } from "@pnp/common";
 import { peoplePicker } from 'office-ui-fabric-react/lib/components/FloatingPicker/PeoplePicker/PeoplePicker.scss';
-import Test from './test'
 
 export interface INewAdState {
     hideDialog: boolean;
@@ -45,7 +44,7 @@ export default class NewAd extends React.Component<IBlocketAppProps, INewAdState
         };
  
         this._options = [
-            { key: '1', text: 'Alla Kategorier' },
+            { key: '1', text: 'Alla' },
             { key: '2', text: 'Fordon' },
             { key: '3', text: 'Elektronik' },
             { key: '4', text: 'Hushåll & Vitvaror' },
