@@ -20,6 +20,8 @@ import NewAd from './AddComponents/NewAd';
 import ViewAd from './AddComponents/ViewAd'
 import { Checkbox} from 'office-ui-fabric-react/lib/Checkbox';
 import { sp} from "@pnp/sp";
+import {IUserItemList} from './IUserItemList';
+import { DisplayMode } from '@microsoft/sp-core-library';
 
 export interface IBlocketAppState {
   items: IListItem[];
@@ -34,7 +36,8 @@ export interface IBlocketAppState {
   searchvalue: string
   search: boolean;
   openDialog: boolean;
-  userEMail: any[];
+  getEMail: any;
+  EMail: any;
 }
 
  export const cardStyles: IDocumentCardStyles = {
@@ -59,7 +62,8 @@ export default class BlocketApp extends React.Component<IBlocketAppProps, IBlock
         searchvalue: '',
         search: false,
         openDialog: true,
-        userEMail: []
+        getEMail: '',
+        EMail: 'H.Allak@allaksp.onmicrosoft.com'
     };
     
   }
@@ -67,10 +71,7 @@ export default class BlocketApp extends React.Component<IBlocketAppProps, IBlock
   public componentDidMount(): void {
     this._loadListItems();
     this.loadOpenDialog(1);
-    this.getUser();
-    console.log('getUsers',this.state.userEMail)
-
-
+    this.getUser(1);
   }
 
   public render(): React.ReactElement<IBlocketAppProps> {
@@ -79,8 +80,7 @@ export default class BlocketApp extends React.Component<IBlocketAppProps, IBlock
         root: {
           marginTop: '10px',
           backgroundColor: 'white',
-          maxWidth: '15em'
-        }
+        },
       };
     };
 
@@ -122,16 +122,19 @@ export default class BlocketApp extends React.Component<IBlocketAppProps, IBlock
                  items={this.state.newItems} 
                  openDialog={this.state.openDialog}
                  closeDialog={this.closeDialog}
+                 userEmail={this.state.EMail}
                    />
                 <br/>
-                <div>
+                <div className={styles.checkBoxes}>
                   <Checkbox styles={checkboxStyles} checked={this.state.dateDisabled} label="Sortera på pris"  onChange={this._onPriceChecked} />
                   <Checkbox styles={checkboxStyles} checked={this.state.priceDisabled} label="Sortera på datum" onChange={this._onDateChecked} />
                   <Checkbox styles={checkboxStyles} checked={this.state.descDisabled} label="Stigande" onChange={this._onASCChecked} />
                   <Checkbox styles={checkboxStyles} checked={this.state.ascDisabled} label="Fallande" onChange={this._onDESCChecked} />
+                </div>
+                <div className={styles.checkBoxes}>
                   <TextField value={this.state.searchvalue} onChanged={e => this.onSearch(e)} />
                   <DefaultButton secondaryText="Bekräftar sortering" onClick={this._loadListItems} text="Sök"  /> 
-                </div>
+                  </div>
               {results}
               {userResults}
             </div>
@@ -141,17 +144,20 @@ export default class BlocketApp extends React.Component<IBlocketAppProps, IBlock
     );
   }
 
-  private getUser = () => {
-     sp.web.lists.getByTitle("MarketPlaceList").items
-    .getById(1)
-    .select("Author", "Author/EMail", "Author/ID", "Author/Title").expand("Author").get().then((items: any[]) => {
-      this.setState({userEMail: items})
-      console.log('items', items)
-      
-    });
-    
-
+  private readUserItems = () => {
+    let data = Array.prototype.concat(this.state.getEMail)
+      data.map(res => {
+       this.setState({EMail: [res][0].Author.EMail})
+    })
   }
+
+  private getUser = (Id: number) => {
+     sp.web.lists.getByTitle("MarketPlaceList").items
+    .getById(Id)
+    .select("Author", "Author/EMail", "Author/ID", "Author/Title").expand("Author").get().then(items => {
+      this.setState({getEMail: items})
+      });
+    }
 
 
   private closeDialog = () => {
@@ -162,6 +168,8 @@ export default class BlocketApp extends React.Component<IBlocketAppProps, IBlock
   private setId = (Id: number) => {
     this.setState({openDialog: false});
     this.loadOpenDialog(Id);
+    this.readUserItems();
+    
   }
 
   private loadOpenDialog = (Id: number): void => {

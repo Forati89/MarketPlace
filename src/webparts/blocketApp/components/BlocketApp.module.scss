@@ -2,10 +2,20 @@
 
 .blocketApp {
   .container {
-    max-width: 700px;
+    max-width: 800px;
     margin: 0px auto;
     box-shadow: 0 2px 4px 0 rgba(0, 0, 0, 0.2), 0 25px 50px 0 rgba(0, 0, 0, 0.1);
     text-align: center;
+    justify-content: center;
+  }
+  .checkBoxes{
+    padding-bottom: 2%;
+    margin-right:10px;
+    display: flex;
+    justify-content: space-between;
+    color:red!important;
+    background-color: white;
+    margin-bottom: 2%;
   }
 
   .row {
@@ -13,6 +23,8 @@
     @include ms-fontColor-white;
     background-color: $ms-color-themeDark;
     padding: 20px;
+    justify-content: center;
+    text-align: center;
   }
 
   .column {
@@ -21,6 +33,8 @@
     @include ms-xl8;
     @include ms-xlPush2;
     @include ms-lgPush1;
+    justify-content: center;
+    text-align: center;
   }
 
   .title {

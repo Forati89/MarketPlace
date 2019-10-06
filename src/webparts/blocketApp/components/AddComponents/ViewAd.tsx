@@ -12,6 +12,8 @@ export interface IViewAdProps {
     context: WebPartContext;
     openDialog: boolean;
     closeDialog: () => void;
+    userEmail: string;
+
 }
 
 export interface IViewAdState {
@@ -111,7 +113,7 @@ export default class ViewAd extends React.Component<IViewAdProps, IViewAdState> 
                     showHiddenInUI={false}
                     principalTypes={[PrincipalType.User]}
                     resolveDelay={1000}
-                    defaultSelectedUsers={[String(this.props.items[0].AuthorId)]}
+                    defaultSelectedUsers={[this.props.userEmail]}
                      />
             <DialogFooter>
               <PrimaryButton onClick={this.updateValues} text="Spara" />
