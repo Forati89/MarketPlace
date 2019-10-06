@@ -38,6 +38,7 @@ export interface IBlocketAppState {
   openDialog: boolean;
   getEMail: any;
   EMail: any;
+  userTitle: any;
 }
 
  export const cardStyles: IDocumentCardStyles = {
@@ -63,7 +64,8 @@ export default class BlocketApp extends React.Component<IBlocketAppProps, IBlock
         search: false,
         openDialog: true,
         getEMail: '',
-        EMail: 'H.Allak@allaksp.onmicrosoft.com'
+        EMail: 'H.Allak@allaksp.onmicrosoft.com',
+        userTitle: 'Hassan Ali'
     };
     
   }
@@ -79,7 +81,6 @@ export default class BlocketApp extends React.Component<IBlocketAppProps, IBlock
       return {
         root: {
           marginTop: '10px',
-          backgroundColor: 'white',
         },
       };
     };
@@ -113,23 +114,29 @@ export default class BlocketApp extends React.Component<IBlocketAppProps, IBlock
           <div className={ styles.row }>
             <div className={ styles.column }>
                 {/* <NavBar> <h1>Welcome to Market Place</h1> </NavBar> */}
+                <h1>Välkommen till Market Place by Hassan Allak</h1>
+                <hr/>
+                <div className={styles.column2}>
                 <NewAd context={this.props.context}
                  loadListItems={this.props.loadListItems}
                  loadUserItems={this.props.loadUserItems}
                   />
+                  <DefaultButton text="Visa Alla Annonser"onClick={this._loadListItems}/>
+                  </div >
                  <ViewAd
                  context={this.props.context} 
                  items={this.state.newItems} 
                  openDialog={this.state.openDialog}
                  closeDialog={this.closeDialog}
                  userEmail={this.state.EMail}
+                 userTitle={this.state.userTitle}
                    />
                 <br/>
                 <div className={styles.checkBoxes}>
-                  <Checkbox styles={checkboxStyles} checked={this.state.dateDisabled} label="Sortera på pris"  onChange={this._onPriceChecked} />
-                  <Checkbox styles={checkboxStyles} checked={this.state.priceDisabled} label="Sortera på datum" onChange={this._onDateChecked} />
-                  <Checkbox styles={checkboxStyles} checked={this.state.descDisabled} label="Stigande" onChange={this._onASCChecked} />
-                  <Checkbox styles={checkboxStyles} checked={this.state.ascDisabled} label="Fallande" onChange={this._onDESCChecked} />
+                  <Checkbox styles={checkboxStyles} checked={this.state.dateDisabled} label="Sortera på pris "  onChange={this._onPriceChecked} />
+                  <Checkbox styles={checkboxStyles} checked={this.state.priceDisabled} label="Sortera på datum " onChange={this._onDateChecked} />
+                  <Checkbox styles={checkboxStyles} checked={this.state.descDisabled} label="Stigande " onChange={this._onASCChecked} />
+                  <Checkbox styles={checkboxStyles} checked={this.state.ascDisabled} label="Fallande " onChange={this._onDESCChecked} />
                 </div>
                 <div className={styles.checkBoxes}>
                   <TextField value={this.state.searchvalue} onChanged={e => this.onSearch(e)} />
@@ -146,8 +153,8 @@ export default class BlocketApp extends React.Component<IBlocketAppProps, IBlock
 
   private readUserItems = () => {
     let data = Array.prototype.concat(this.state.getEMail)
-      data.map(res => {
-       this.setState({EMail: [res][0].Author.EMail})
+      data.map(res => { console.log(res);
+       this.setState({EMail: [res][0].Author.EMail, userTitle: [res][0].Author.Title})
     })
   }
 
@@ -178,6 +185,7 @@ export default class BlocketApp extends React.Component<IBlocketAppProps, IBlock
     .filter(`Id eq ${Id} `).get().then(result =>
       {
         this.setState({newItems: result})
+        console.log(this.state.newItems)
     })
     
 

@@ -11,4 +11,5 @@ export interface IBlocketAppProps {
   hideDialog?: any;
   openDialog?: boolean;
   closeDialog?: () => void;
+  searchvalue?: string;
 }

@@ -9,13 +9,13 @@
     justify-content: center;
   }
   .checkBoxes{
-    padding-bottom: 2%;
-    margin-right:10px;
-    display: flex;
+    @include ms-fontColor-white;
+    max-width: 800px;
+    display: inline-flex;
     justify-content: space-between;
-    color:red!important;
-    background-color: white;
     margin-bottom: 2%;
+    padding-left: 3%;
+    padding-right: 3%;
   }
 
   .row {
@@ -25,16 +25,19 @@
     padding: 20px;
     justify-content: center;
     text-align: center;
+
   }
 
   .column {
-    @include ms-Grid-col;
-    @include ms-lg10;
-    @include ms-xl8;
-    @include ms-xlPush2;
-    @include ms-lgPush1;
-    justify-content: center;
+    display: inline;
+    justify-content: space-between;
     text-align: center;
+    .column2{
+      justify-content: center;
+      display: inline-flex;
+      padding: 2%;
+    }
+
   }
 
   .title {

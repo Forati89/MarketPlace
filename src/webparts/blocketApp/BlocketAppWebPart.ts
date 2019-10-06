@@ -10,7 +10,7 @@ import {
 import * as strings from 'BlocketAppWebPartStrings';
 import BlocketApp from './components/BlocketApp';
 import { IBlocketAppProps } from './components/IBlocketAppProps';
-import { sp } from "@pnp/sp";
+import { sp, Search } from "@pnp/sp";
 import { IListItem } from './IListItem';
 import { IUserItem } from './IUserItem';
 import { string } from 'prop-types';
@@ -46,7 +46,7 @@ export default class BlocketAppWebPart extends BaseClientSideWebPart<IBlocketApp
     ReactDom.render(element, this.domElement);
   }
 
-  private async loadListItems(sortColumn: string, asc: boolean, searchvalue: string, search?: boolean): Promise<IListItem[]>{
+  private async loadListItems(sortColumn: string, asc: boolean, searchvalue?: string, search?: boolean): Promise<IListItem[]>{
     if(search === true){
     const result: IListItem[] = await sp.web.lists.getByTitle("MarketPlaceList").items
     .filter(`substringof('${encodeURIComponent(searchvalue)}',Title) or substringof('${encodeURIComponent(searchvalue)}',Kategori)`)

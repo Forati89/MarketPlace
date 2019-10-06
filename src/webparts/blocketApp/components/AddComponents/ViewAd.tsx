@@ -1,11 +1,12 @@
 import * as React from 'react';
 import { IListItem } from '../../IListItem';
 import { Dialog, DialogType, DialogFooter } from 'office-ui-fabric-react/lib/Dialog';
-import { TextField, IDropdownOption, Dropdown} from 'office-ui-fabric-react/lib';
+import { TextField, IDropdownOption, Dropdown, DocumentCardImage, ImageFit} from 'office-ui-fabric-react/lib';
 import { DefaultButton, PrimaryButton } from 'office-ui-fabric-react/lib/Button';
 import { PeoplePicker, PrincipalType } from "@pnp/spfx-controls-react/lib/PeoplePicker";
 import { WebPartContext } from '@microsoft/sp-webpart-base';
 import { sp} from "@pnp/sp";
+import styles from './ViewAd.module.scss'
 
 export interface IViewAdProps {
     items: IListItem[];
@@ -13,6 +14,7 @@ export interface IViewAdProps {
     openDialog: boolean;
     closeDialog: () => void;
     userEmail: string;
+    userTitle: any;
 
 }
 
@@ -25,6 +27,9 @@ export interface IViewAdState {
         Kategori: string;
         UsersId: number;
         BildUrl: string;
+        Datum: Date;
+        showEdit: boolean;
+        validEditUser: boolean;
     };
 }
 
@@ -44,6 +49,9 @@ export default class ViewAd extends React.Component<IViewAdProps, IViewAdState> 
                 Beskrivning: '',
                 Kategori: '',
                 BildUrl: '',
+                Datum: new Date(),
+                showEdit: false,
+                validEditUser: false
             }
         };
         this._options = [
@@ -92,6 +100,7 @@ export default class ViewAd extends React.Component<IViewAdProps, IViewAdState> 
               isBlocking: false,
               styles: { main: { minWidth: 900 } }
             }}>
+              <div className={styles.editDiv}>
               <TextField label="Mata in Rubrik för din annons" defaultValue={result.Title} className="Title" onChange={this._onChangeTitle}/>
               <TextField label="Mata in Beskrivning" defaultValue={result.Beskrivning} className="Description" onChange={this._onChangeDesc}/>
               <TextField label="Mata in Pris för Objektet" defaultValue={result.Pris}  className="Price" type="number" prefix="kr" onChange={this._onChangePrice}/>
@@ -107,7 +116,7 @@ export default class ViewAd extends React.Component<IViewAdProps, IViewAdState> 
                     groupName={""} // Leave this blank in case you want to filter from all users
                     showtooltip={true}
                     isRequired={true}
-                    disabled={false}
+                    disabled={true}
                     ensureUser={true}
                     selectedItems={this._getPeoplePickerItems}
                     showHiddenInUI={false}
@@ -115,6 +124,19 @@ export default class ViewAd extends React.Component<IViewAdProps, IViewAdState> 
                     resolveDelay={1000}
                     defaultSelectedUsers={[this.props.userEmail]}
                      />
+              </div>
+              <div>
+              <h1>{result.Title}</h1>
+              <DocumentCardImage height={150}  imageFit={ImageFit.centerContain} imageSrc={result.BildUrl} />
+              <p>Beskrivning:</p>
+              <p>{result.Beskrivning}</p>
+              <h2>Pris: {result.Pris} kr</h2>
+              <h3>Kategori: {result.Kategori}</h3>
+              <p>Publicerad: {result.Datum}</p>
+              <p>Publicerad av: {this.props.userTitle}</p>
+              </div>
+              
+
             <DialogFooter>
               <PrimaryButton onClick={this.updateValues} text="Spara" />
               <DefaultButton onClick={this.props.closeDialog} text="Avbryt" />
@@ -130,6 +152,9 @@ export default class ViewAd extends React.Component<IViewAdProps, IViewAdState> 
 
     }
 
+    private validUser = (id: number) => {
+      
+    }
     
     private choosenCat = (cat: string) => {
 
