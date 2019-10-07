@@ -7,6 +7,7 @@ import { PeoplePicker, PrincipalType } from "@pnp/spfx-controls-react/lib/People
 import { WebPartContext } from '@microsoft/sp-webpart-base';
 import { sp} from "@pnp/sp";
 import styles from './ViewAd.module.scss'
+import { CurrentUser } from '@pnp/sp/src/siteusers';
 
 export interface IViewAdProps {
     items: IListItem[];
@@ -19,6 +20,9 @@ export interface IViewAdProps {
 }
 
 export interface IViewAdState {
+    hideEdit: boolean;
+    validEditUser: boolean;
+    message: string;
     values: {
         Id: number;
         Title: string;
@@ -28,8 +32,7 @@ export interface IViewAdState {
         UsersId: number;
         BildUrl: string;
         Datum: Date;
-        showEdit: boolean;
-        validEditUser: boolean;
+        currentUserId: number;
     };
 }
 
@@ -41,17 +44,20 @@ export default class ViewAd extends React.Component<IViewAdProps, IViewAdState> 
     {
         super(props);
         this.state = {
+            hideEdit: true,
+            validEditUser: false,
+            message: '',
             values: {
                 Id: 1,
                 Pris: 0,
                 Title: '',
-                UsersId: 10,
+                UsersId: 0,
                 Beskrivning: '',
                 Kategori: '',
                 BildUrl: '',
                 Datum: new Date(),
-                showEdit: false,
-                validEditUser: false
+
+                currentUserId: 10
             }
         };
         this._options = [
@@ -63,30 +69,16 @@ export default class ViewAd extends React.Component<IViewAdProps, IViewAdState> 
             { key: '6', text: 'Övrigt' },
           ];
         
+    }
+    public componentDidMount(): void {
+      this.getSPCUData();
     }  
     
-    // public componentWillReceiveProps(): void {
-    //   this.setState( prevState => ({
-    //       values:{
-    //     ...prevState.values,
-    //     Pris: this.props.items[0].Pris,
-    //     Title: this.props.items[0].Title,
-    //     UsersId: this.props.items[0].UsersId,
-    //     Beskrivning: this.props.items[0].Beskrivning,
-    //     Kategori: this.props.items[0].Kategori,
-    //     BildUrl: this.props.items[0].BildUrl
-    // }  
-    // }));
-  
-    // }
-    
-
     public render():  React.ReactElement<IViewAdProps> {
 
         const dialog = this.props.items.map(result => {
             // variable for kategori to be comapred and return the number of key value //
             let cat = this.choosenCat(result.Kategori);
-            console.log([String(this.props.items[0].AuthorId)])
             return(
             <Dialog
             hidden={this.props.openDialog}
@@ -94,13 +86,24 @@ export default class ViewAd extends React.Component<IViewAdProps, IViewAdState> 
             dialogContentProps={{
               type: DialogType.largeHeader,
               title: result.Title,
-            //   subText: 'Dinn Annons är nu upplagd, tack för du använder MarketPlace'
             }}
             modalProps={{
               isBlocking: false,
               styles: { main: { minWidth: 900 } }
             }}>
-              <div className={styles.editDiv}>
+
+              <div>
+              <h1>{result.Title}</h1>
+              <DocumentCardImage height={150}  imageFit={ImageFit.centerContain} imageSrc={result.BildUrl} />
+              <p>Beskrivning:</p>
+              <p>{result.Beskrivning}</p>
+              <h2>Pris: {result.Pris} kr</h2>
+              <h3>Kategori: {result.Kategori}</h3>
+              <p>Publicerad: {result.Datum}</p>
+              <p>Publicerad av: <h3>{this.props.userTitle}</h3></p>
+              <h3 color="green">{this.state.message}</h3>
+              </div>
+              <div  hidden={this.state.hideEdit}>
               <TextField label="Mata in Rubrik för din annons" defaultValue={result.Title} className="Title" onChange={this._onChangeTitle}/>
               <TextField label="Mata in Beskrivning" defaultValue={result.Beskrivning} className="Description" onChange={this._onChangeDesc}/>
               <TextField label="Mata in Pris för Objektet" defaultValue={result.Pris}  className="Price" type="number" prefix="kr" onChange={this._onChangePrice}/>
@@ -113,7 +116,7 @@ export default class ViewAd extends React.Component<IViewAdProps, IViewAdState> 
                     context={this.props.context}
                     titleText="People Picker"
                     personSelectionLimit={3}
-                    groupName={""} // Leave this blank in case you want to filter from all users
+                    groupName={""}
                     showtooltip={true}
                     isRequired={true}
                     disabled={true}
@@ -124,22 +127,13 @@ export default class ViewAd extends React.Component<IViewAdProps, IViewAdState> 
                     resolveDelay={1000}
                     defaultSelectedUsers={[this.props.userEmail]}
                      />
-              </div>
-              <div>
-              <h1>{result.Title}</h1>
-              <DocumentCardImage height={150}  imageFit={ImageFit.centerContain} imageSrc={result.BildUrl} />
-              <p>Beskrivning:</p>
-              <p>{result.Beskrivning}</p>
-              <h2>Pris: {result.Pris} kr</h2>
-              <h3>Kategori: {result.Kategori}</h3>
-              <p>Publicerad: {result.Datum}</p>
-              <p>Publicerad av: {this.props.userTitle}</p>
-              </div>
-              
+              <PrimaryButton onClick={e => this.deleteItem(this.props.items[0].Id)} text="Ta Bort"/>       
+              </div>              
 
             <DialogFooter>
               <PrimaryButton onClick={this.updateValues} text="Spara" />
               <DefaultButton onClick={this.props.closeDialog} text="Avbryt" />
+              <DefaultButton onClick={this.showEditPanel} text="Redigera" />
             </DialogFooter>
           </Dialog>
         )})
@@ -152,24 +146,47 @@ export default class ViewAd extends React.Component<IViewAdProps, IViewAdState> 
 
     }
 
-    private validUser = (id: number) => {
-      
+    private showEditPanel = () => {
+      this.validUser();
+
+      if(this.state.validEditUser !== true)
+      return null
+      else 
+      {
+        this.setState({hideEdit: false, message: 'Ditt Id har Verifierats! du kan nu ändra annonsen'})
+
+      }
+
+    }
+
+    private validUser = () => {
+      this.updateState();
+      if(this.props.items[0].AuthorId !== this.state.values.currentUserId)
+      return (this.setState({message: 'Du är inte behörig för ändringar av denna annons!'}))
+      else
+      {
+        console.log('valid user passed')
+        this.setState({validEditUser: true, hideEdit: false})
+      }
     }
     
+    private getSPCUData(): void {      
+      sp.web.currentUser.get().then((r: CurrentUser) => { console.log(r) 
+        this.setState( prevState => ({
+          values:{
+        ...prevState.values,
+            currentUserId: r['Id']
+        }  
+        }));  
+      });  
+    } 
     private choosenCat = (cat: string) => {
 
         let catetgory = this._options.filter(value => value.text === cat)
         let key = catetgory.map(key => { return key.key[0]})
 
-         console.log('choosenCat', key)
         return key
 
-    }
-
-    private userToView = (): string[] => {
-      let user = [String(this.props.items[0].AuthorId)]
-      console.log('user', user)
-      return user
     }
 
     private updateState = (): void => {
@@ -184,7 +201,6 @@ export default class ViewAd extends React.Component<IViewAdProps, IViewAdState> 
           Kategori: this.props.items[0].Kategori
       }  
       }));
-      
     }
 
     private _getPeoplePickerItems = (items: any) => {
@@ -221,14 +237,12 @@ export default class ViewAd extends React.Component<IViewAdProps, IViewAdState> 
 
 
     private _onChangeTitle = (ev: React.FormEvent<HTMLInputElement>, newValue?: any) => {
-        this.updateState();
         this.setState( prevState => ({
            values:{
           ...prevState.values,
             Title: newValue
         }  
         }));
-        console.log(this.props.items)
       }
       // Handle Description input field //
     private _onChangeDesc = (ev: React.FormEvent<HTMLInputElement>, newValue?: any) => {
@@ -285,6 +299,13 @@ export default class ViewAd extends React.Component<IViewAdProps, IViewAdState> 
           
           });
           this.props.closeDialog();
+      }
+
+      private deleteItem = (Id: number): void => {
+          let list = sp.web.lists.getByTitle("MarketPlaceList");
+
+            list.items.getById(Id).delete().then(_ => {});
+            this.props.closeDialog();
       }
 
 

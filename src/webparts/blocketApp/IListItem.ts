@@ -11,4 +11,5 @@ export interface IListItem{
     Bild: string[];
     BildUrl: string;
     AuthorId: any;
+    EditorId: any;
 }

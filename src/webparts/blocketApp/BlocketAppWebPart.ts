@@ -6,14 +6,12 @@ import {
   IPropertyPaneConfiguration,
   PropertyPaneTextField
 } from '@microsoft/sp-webpart-base';
-
 import * as strings from 'BlocketAppWebPartStrings';
 import BlocketApp from './components/BlocketApp';
 import { IBlocketAppProps } from './components/IBlocketAppProps';
 import { sp, Search } from "@pnp/sp";
 import { IListItem } from './IListItem';
-import { IUserItem } from './IUserItem';
-import { string } from 'prop-types';
+
 
 export interface IBlocketAppWebPartProps {
   description: string;
@@ -38,7 +36,6 @@ export default class BlocketAppWebPart extends BaseClientSideWebPart<IBlocketApp
       BlocketApp,
       {
         loadListItems: this.loadListItems,
-        loadUserItems: this.loadUserItems,
         context: this.context,
       }
     );
@@ -62,17 +59,6 @@ export default class BlocketAppWebPart extends BaseClientSideWebPart<IBlocketApp
   }
 
 
-
-  private async loadUserItems(): Promise<IUserItem[]>{
-    const result: IUserItem[] = await sp.web.lists.getByTitle("MarketPlaceList").items.select('Author/Id,Author/Title,Author/Name,Author/EMail')
-    .expand('Author')
-    .getAll().then((item: any[])=>{
-      return(item);
-
-    });
-
-    return(result);
-  }
 
   protected onDispose(): void {
     ReactDom.unmountComponentAtNode(this.domElement);

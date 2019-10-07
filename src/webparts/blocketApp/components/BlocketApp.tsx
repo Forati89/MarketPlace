@@ -70,8 +70,8 @@ export default class BlocketApp extends React.Component<IBlocketAppProps, IBlock
     
   }
 
-  public componentDidMount(): void {
-    this._loadListItems();
+  public componentDidMount() {
+    this._loadListItems().then()
     this.loadOpenDialog(1);
     this.getUser(1);
   }
@@ -114,7 +114,7 @@ export default class BlocketApp extends React.Component<IBlocketAppProps, IBlock
           <div className={ styles.row }>
             <div className={ styles.column }>
                 {/* <NavBar> <h1>Welcome to Market Place</h1> </NavBar> */}
-                <h1>Välkommen till Market Place by Hassan Allak</h1>
+                <h1>Välkommen Till Market Place </h1><p>by Hassan Allak</p>
                 <hr/>
                 <div className={styles.column2}>
                 <NewAd context={this.props.context}
@@ -176,6 +176,7 @@ export default class BlocketApp extends React.Component<IBlocketAppProps, IBlock
     this.setState({openDialog: false});
     this.loadOpenDialog(Id);
     this.readUserItems();
+    this.getUser(Id);
     
   }
 
@@ -198,12 +199,6 @@ export default class BlocketApp extends React.Component<IBlocketAppProps, IBlock
     this.setState({items: items});
   }
 
-  @autobind
-  private async _loadUserItems(): Promise<void> {
-    const items: IUserItem[] = await this.props.loadUserItems();
-    console.log('items in JSX', items);
-    this.setState({user: items});
-  }
 
   private _onDateChecked = (ev: React.FormEvent<HTMLElement>, priceChecked: boolean): void => {
     if(this.state.priceDisabled === false)
